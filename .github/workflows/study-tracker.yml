@@ -1,0 +1,49 @@
+name: Notion study tracker
+
+on:
+  schedule:
+    - cron: "41 22 * * *"   # 04:11 IST every day: today's page + any due weekly/monthly review
+  workflow_dispatch:
+    inputs:
+      command:
+        description: What to do
+        type: choice
+        options: [daily, today, weekly, monthly, sync, setup]
+        default: daily
+      parent_page:
+        description: "Only for setup: link to the Notion page to create the databases in"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: study-tracker
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Run tracker
+        working-directory: notion-study-tracker
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DAILY_DS_ID: ${{ secrets.NOTION_DAILY_DS_ID }}
+          NOTION_REVIEWS_DS_ID: ${{ secrets.NOTION_REVIEWS_DS_ID }}
+          COMMAND: ${{ inputs.command || 'daily' }}
+          PARENT_PAGE: ${{ inputs.parent_page }}
+        run: |
+          if [ "$COMMAND" = "setup" ]; then
+            if [ -z "$PARENT_PAGE" ]; then echo "Paste your Notion page link into parent_page"; exit 1; fi
+            python tracker.py setup "$PARENT_PAGE"
+          else
+            python tracker.py "$COMMAND"
+          fi

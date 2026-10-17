@@ -1,0 +1,68 @@
+name: German vocab bot
+
+on:
+  schedule:
+    # GitHub cron is in UTC. IST = UTC + 5:30. Runs can start a few minutes late.
+    - cron: "50 0 * * 1-5"    # 06:20 IST Mon–Fri  → morning words
+    - cron: "55 10 * * 1-5"   # 16:25 IST Mon–Fri  → evening quiz
+    - cron: "33 4 * * 6"      # 10:03 IST Saturday → weekly review
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: What to do
+        type: choice
+        options: [morning, evening, review, chatid]
+        default: morning
+
+permissions:
+  contents: read
+
+concurrency:
+  group: german-bot
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Pick mode
+        id: mode
+        env:
+          EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+          INPUT_MODE: ${{ inputs.mode }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "mode=$INPUT_MODE" >> "$GITHUB_OUTPUT"
+            echo "flags=--force" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          case "$SCHEDULE" in
+            "50 0 * * 1-5")  mode=morning ;;
+            "55 10 * * 1-5") mode=evening ;;
+            "33 4 * * 6")    mode=review ;;
+            *) echo "Unknown schedule: $SCHEDULE"; exit 1 ;;
+          esac
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
+      - name: Send
+        working-directory: german-vocab-bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          START_DATE: ${{ vars.START_DATE }}
+          WORDS_PER_DAY: ${{ vars.WORDS_PER_DAY }}
+          QUIZ_QUESTIONS: ${{ vars.QUIZ_QUESTIONS }}
+          REVIEW_QUESTIONS: ${{ vars.REVIEW_QUESTIONS }}
+          MODE: ${{ steps.mode.outputs.mode }}
+          FLAGS: ${{ steps.mode.outputs.flags }}
+        run: |
+          if [ "$MODE" = "chatid" ]; then FLAGS=""; fi
+          python bot.py "$MODE" $FLAGS

@@ -1,0 +1,49 @@
+{
+  "timezone": "Asia/Kolkata",
+  "subjects": [
+    {"name": "Mathematics", "color": "red"},
+    {"name": "Physics", "color": "blue"},
+    {"name": "Electrical Engineering", "color": "yellow"},
+    {"name": "Mechanics", "color": "orange"},
+    {"name": "German", "color": "green"},
+    {"name": "Cybersecurity", "color": "purple"}
+  ],
+  "blocks": [
+    {
+      "key": "morning",
+      "name": "🌅 Morning study",
+      "time": "5:00–6:15 AM",
+      "minutes": 75,
+      "rotation": {
+        "Mon": "Mathematics", "Tue": "Physics", "Wed": "Mathematics",
+        "Thu": "Electrical Engineering", "Fri": "Mathematics",
+        "Sat": "Physics", "Sun": "Mechanics"
+      }
+    },
+    {
+      "key": "german",
+      "name": "🇩🇪 German on the metro",
+      "time": "6:45–7:45 AM",
+      "minutes": 30,
+      "subject": "German"
+    },
+    {
+      "key": "evening",
+      "name": "🌆 Evening study",
+      "time": "6:00–8:00 PM",
+      "minutes": 120,
+      "rotation": {
+        "Mon": "Physics", "Tue": "Mechanics", "Wed": "Electrical Engineering",
+        "Thu": "Mathematics", "Fri": "Physics",
+        "Sat": "Mathematics", "Sun": "Electrical Engineering"
+      }
+    },
+    {
+      "key": "cyber",
+      "name": "🛡️ Cybersecurity",
+      "time": "8:30–9:00 PM",
+      "minutes": 30,
+      "subject": "Cybersecurity"
+    }
+  ]
+}
