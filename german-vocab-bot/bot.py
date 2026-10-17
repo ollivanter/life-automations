@@ -399,8 +399,12 @@ def main(argv: list[str] | None = None) -> int:
     token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
     if args.mode == "chatid":
         if not token:
-            sys.exit("Set TELEGRAM_BOT_TOKEN first")
-        show_chat_ids(token)
+            sys.exit("TELEGRAM_BOT_TOKEN secret is missing or empty")
+        try:
+            show_chat_ids(token)
+        except TelegramError as exc:
+            hint = " (the token is wrong: copy it again from @BotFather)" if "Unauthorized" in str(exc) else ""
+            sys.exit(f"Telegram error: {exc}{hint}")
         return 0
 
     cfg = Config.from_env()
@@ -421,7 +425,8 @@ def main(argv: list[str] | None = None) -> int:
 
     chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
     if not token or not chat_id:
-        sys.exit("Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID (see README)")
+        missing = [n for n, v in (("TELEGRAM_BOT_TOKEN", token), ("TELEGRAM_CHAT_ID", chat_id)) if not v]
+        sys.exit(f"Missing secret(s): {', '.join(missing)}. Run the workflow with 'chatid' first (see README).")
     tg = Telegram(token, chat_id)
     try:
         for t in texts:
