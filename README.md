@@ -16,7 +16,7 @@ Three small automations that run my everyday student routine, all on free infras
 04:11 daily   ─►│ tracker.py daily ─► Notion: today's page,      │
                 │                     weekly/monthly reviews     │
                 └────────────────────────────────────────────────┘
-every hour ─► Apps Script: Gmail (college) ─► parse dates ─► Google Calendar
+Outlook (college) ─► Power Automate ─► Gmail ─► Apps Script (hourly) ─► parse dates ─► Google Calendar
 ```
 
 ## Set up
