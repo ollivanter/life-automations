@@ -15,6 +15,7 @@ Modes
 Environment variables
   TELEGRAM_BOT_TOKEN   from @BotFather (required to send)
   TELEGRAM_CHAT_ID     your chat ID (required to send)
+  TIMEZONE             IANA name for "today", e.g. Asia/Tbilisi (default Asia/Kolkata)
   START_DATE           first lesson day, YYYY-MM-DD (default 2026-10-19)
   WORDS_PER_DAY        default 10
   QUIZ_QUESTIONS       evening quiz length, default 6
@@ -35,7 +36,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-IST = ZoneInfo("Asia/Kolkata")
+DEFAULT_TZ = "Asia/Kolkata"
 HERE = Path(__file__).resolve().parent
 TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"
 
@@ -409,7 +410,12 @@ def main(argv: list[str] | None = None) -> int:
 
     cfg = Config.from_env()
     vocab = load_vocab(Path(args.vocab))
-    day = dt.date.fromisoformat(args.date) if args.date else dt.datetime.now(IST).date()
+    tz_name = _env("TIMEZONE", DEFAULT_TZ)
+    try:
+        tz = ZoneInfo(tz_name)
+    except Exception:
+        sys.exit(f"TIMEZONE must be a name like Asia/Tbilisi, got {tz_name!r}")
+    day = dt.date.fromisoformat(args.date) if args.date else dt.datetime.now(tz).date()
     if args.force and args.mode in ("morning", "evening") and day.weekday() >= 5:
         day -= dt.timedelta(days=day.weekday() - 4)  # use Friday's lesson
 

@@ -3,6 +3,8 @@ name: German vocab bot
 on:
   schedule:
     # GitHub cron is in UTC. IST = UTC + 5:30. Runs can start a few minutes late.
+    # In another country, change these three lines AND the matching `case`
+    # lines below (they must be identical), and set the TIMEZONE variable.
     - cron: "50 0 * * 1-5"    # 06:20 IST Mon–Fri  → morning words
     - cron: "55 10 * * 1-5"   # 16:25 IST Mon–Fri  → evening quiz
     - cron: "33 4 * * 6"      # 10:03 IST Saturday → weekly review
@@ -57,6 +59,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TIMEZONE: ${{ vars.TIMEZONE }}
           START_DATE: ${{ vars.START_DATE }}
           WORDS_PER_DAY: ${{ vars.WORDS_PER_DAY }}
           QUIZ_QUESTIONS: ${{ vars.QUIZ_QUESTIONS }}

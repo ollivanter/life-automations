@@ -27,12 +27,24 @@ That's it. The schedule runs on its own from now on.
 
 | Variable | Default | Meaning |
 |---|---|---|
+| `TIMEZONE` | Asia/Kolkata | Your time zone, e.g. `Asia/Tbilisi`, `Europe/Berlin` |
 | `START_DATE` | 2026-10-19 | Lesson 1. Lessons only advance on weekdays. |
 | `WORDS_PER_DAY` | 10 | New words each morning |
 | `QUIZ_QUESTIONS` | 6 | Evening quiz length |
 | `REVIEW_QUESTIONS` | 10 | Saturday review length |
 
-To change the times, edit the `cron` lines in `.github/workflows/german-bot.yml` (they're in UTC: subtract 5h30m from IST) **and** the matching `case` lines below them.
+### Changing the times or time zone
+
+GitHub's schedule is in **UTC**. Edit the three `cron` lines in `.github/workflows/german-bot.yml` **and** the three matching `case` lines further down (they must match exactly, or the run fails with *Unknown schedule*). Then set the `TIMEZONE` variable.
+
+A cron line is `minute hour * * days`. To convert your local time to UTC, subtract your UTC offset:
+
+| Where | Offset | 06:20 morning | 16:25 quiz | Sat 10:03 review |
+|---|---|---|---|---|
+| India (`Asia/Kolkata`) | +5:30 | `50 0 * * 1-5` | `55 10 * * 1-5` | `33 4 * * 6` |
+| Georgia (`Asia/Tbilisi`) | +4:00 | `20 2 * * 1-5` | `25 12 * * 1-5` | `3 6 * * 6` |
+
+Places with daylight saving time (most of Europe) shift by an hour in summer, since GitHub cron doesn't follow DST. Georgia doesn't use DST.
 
 ## Adding words
 
