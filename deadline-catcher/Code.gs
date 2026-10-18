@@ -13,8 +13,9 @@
 // ---------------------------------------------------------------------------
 const CONFIG = {
   // Only emails from these senders are read. Gmail matches partial
-  // addresses, so 'pes.edu' also covers 'name@pesu.pes.edu'. Add a
-  // professor's Gmail address here if they use one.
+  // addresses, so 'pes.edu' also covers 'name@pesu.pes.edu' and mail
+  // forwarded from your @stu.pes.edu Outlook inbox. Add a professor's
+  // Gmail address here if they use one.
   SENDERS: ['pes.edu'],
 
   // An email must contain at least one of these words to be checked.
@@ -341,7 +342,12 @@ function splitLines(text) {
     .replace(/\r/g, '')
     .split(/\n|(?<=[.!?])\s+(?=[A-Z])/)
     .map(function (l) { return l.replace(/\s+/g, ' ').trim(); })
-    .filter(function (l) { return l.length > 0 && l.length < 400 && !/^>/.test(l); });
+    .filter(function (l) {
+      // Skip quoted text and the header block Outlook/Gmail add to forwarded mail
+      // ("Sent: Saturday, October 17, 2026 10:00 AM" is not a deadline).
+      return l.length > 0 && l.length < 400 && !/^>/.test(l) &&
+        !/^(from|sent|date|to|cc|subject)\s*:/i.test(l);
+    });
 }
 
 /**

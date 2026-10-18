@@ -46,6 +46,10 @@ expect('Assignment\n> due 25/10/2026\nSee quoted text above', [], { review: fals
 expect('Dr. Rao says the assignment is due 29 Oct.', ['2026-10-29']);
 expect('Assignment 3 is due tonight', ['2026-10-17 23:59']);
 
+// Mail forwarded from Outlook: the header block's date must be ignored
+expect('FW: Lab 5\n---------- Forwarded message ---------\nFrom: Prof <p@pes.edu>\nSent: Saturday, October 17, 2026 10:00 AM\nTo: PES2UG26CS459@stu.pes.edu\nSubject: Lab 5\n\nLab 5 is due on 30 Oct by 5 pm.', ['2026-10-30 17:00']);
+expect('FW: Notice\nFrom: Office <o@pes.edu>\nDate: Sat, 17 Oct 2026\nThe library will be closed.', [], { review: false });
+
 // Single date, only trusted when the subject is about a deadline
 expect('ISA 2 seating plan\nPlease check the hall on 22 Oct.', ['2026-10-22']);
 expect('Club newsletter\nMeet us on 22 Oct.', [], { review: true });
